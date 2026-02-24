@@ -67,8 +67,8 @@ export default function Sidebar() {
                             exit={{ opacity: 0, x: -10 }}
                             className="flex items-center gap-4"
                         >
-                            <div className="w-10 h-10 rounded-2xl bg-slate-900 flex items-center justify-center shadow-xl">
-                                <PawPrint className="w-5 h-5 text-white" />
+                            <div className="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-xl shadow-indigo-100 overflow-hidden">
+                                <img src="/logo.svg" alt="CP Logo" className="w-full h-full object-cover" />
                             </div>
                             <div className="min-w-0">
                                 <span className="font-display font-black text-lg tracking-tight text-slate-900 block leading-tight">Claws & Paws</span>
@@ -77,8 +77,8 @@ export default function Sidebar() {
                         </motion.div>
                     ) : (
                         <motion.div key="collapsed" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mx-auto">
-                            <div className="w-10 h-10 rounded-2xl bg-slate-900 flex items-center justify-center shadow-lg">
-                                <PawPrint className="w-5 h-5 text-white" />
+                            <div className="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-100 overflow-hidden">
+                                <img src="/logo.svg" alt="CP Logo" className="w-full h-full object-cover" />
                             </div>
                         </motion.div>
                     )}

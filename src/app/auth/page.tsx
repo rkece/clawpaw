@@ -102,8 +102,8 @@ export default function AuthPage() {
                     className="hidden lg:block space-y-12"
                 >
                     <div className="flex items-center gap-5">
-                        <div className="w-16 h-16 rounded-[22px] bg-indigo-600 flex items-center justify-center shadow-2xl shadow-indigo-200 animate-float">
-                            <PawPrint className="w-8 h-8 text-white" />
+                        <div className="w-16 h-16 rounded-[22px] bg-indigo-600 flex items-center justify-center shadow-2xl shadow-indigo-200 animate-float overflow-hidden p-2">
+                            <img src="/logo.svg" alt="CP Logo" className="w-full h-full object-contain" />
                         </div>
                         <div>
                             <span className="font-display font-black text-3xl tracking-tighter text-slate-900 block">Claws & Paws</span>
