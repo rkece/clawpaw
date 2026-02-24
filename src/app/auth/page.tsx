@@ -112,7 +112,7 @@ export default function AuthPage() {
                     </div>
 
                     <div className="space-y-6">
-                        <h1 className="text-[7.5rem] leading-[0.85] font-display font-black tracking-tighter text-slate-900">
+                        <h1 className="text-[6rem] leading-[0.9] font-display font-black tracking-tighter text-slate-900">
                             The <span className="gradient-text italic">Clinical</span> Matrix.
                         </h1>
                         <p className="text-2xl text-slate-500 font-medium max-w-[580px] leading-relaxed">
