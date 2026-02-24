@@ -1,0 +1,397 @@
+{
+    "hamsters": {
+        "breeds": [
+            {
+                "name": "Syrian Hamster",
+                "min_age_months": 2,
+                "max_age_months": 36,
+                "min_weight_g": 85,
+                "max_weight_g": 150,
+                "daily_nutrients": {
+                    "calories_kcal": 100,
+                    "protein_g": 16,
+                    "fat_g": 4,
+                    "fiber_g": 5,
+                    "water_ml": 30
+                },
+                "food_recommendations": [
+                    {
+                        "food": "Hamster Pellets",
+                        "price_per_kg": 350
+                    },
+                    {
+                        "food": "Sunflower Seeds",
+                        "price_per_kg": 800
+                    },
+                    {
+                        "food": "Carrot (fresh)",
+                        "price_per_kg": 20
+                    },
+                    {
+                        "food": "Boiled Egg",
+                        "price_per_kg": 500
+                    },
+                    {
+                        "food": "Oats",
+                        "price_per_kg": 100
+                    }
+                ]
+            },
+            {
+                "name": "Dwarf Campbell Russian Hamster",
+                "min_age_months": 2,
+                "max_age_months": 36,
+                "min_weight_g": 35,
+                "max_weight_g": 50,
+                "daily_nutrients": {
+                    "calories_kcal": 80,
+                    "protein_g": 14,
+                    "fat_g": 3,
+                    "fiber_g": 4,
+                    "water_ml": 25
+                },
+                "food_recommendations": [
+                    {
+                        "food": "Dwarf Hamster Pellets",
+                        "price_per_kg": 400
+                    },
+                    {
+                        "food": "Pumpkin Seeds",
+                        "price_per_kg": 700
+                    },
+                    {
+                        "food": "Cucumber (fresh)",
+                        "price_per_kg": 15
+                    },
+                    {
+                        "food": "Boiled Chicken",
+                        "price_per_kg": 450
+                    },
+                    {
+                        "food": "Millet Spray",
+                        "price_per_kg": 200
+                    }
+                ]
+            },
+            {
+                "name": "Roborovski Hamster",
+                "min_age_months": 2,
+                "max_age_months": 36,
+                "min_weight_g": 20,
+                "max_weight_g": 25,
+                "daily_nutrients": {
+                    "calories_kcal": 70,
+                    "protein_g": 12,
+                    "fat_g": 2,
+                    "fiber_g": 4,
+                    "water_ml": 20
+                },
+                "food_recommendations": [
+                    {
+                        "food": "Roborovski Pellets",
+                        "price_per_kg": 500
+                    },
+                    {
+                        "food": "Chia Seeds",
+                        "price_per_kg": 1100
+                    },
+                    {
+                        "food": "Bell Pepper (fresh)",
+                        "price_per_kg": 30
+                    },
+                    {
+                        "food": "Tofu (boiled)",
+                        "price_per_kg": 250
+                    },
+                    {
+                        "food": "Barley",
+                        "price_per_kg": 120
+                    }
+                ]
+            }
+        ],
+        "diseases": [
+            "Wet Tail",
+            "Diabetes",
+            "Respiratory Infection",
+            "Dental Disease",
+            "Skin Mites",
+            "Digestive Blockage",
+            "Obesity",
+            "Tumors",
+            "Cold Stress",
+            "Malocclusion"
+        ]
+    },
+    "rabbits": {
+        "breeds": [
+            {
+                "name": "New Zealand White",
+                "min_age_months": 2,
+                "max_age_months": 120,
+                "min_weight_g": 3500,
+                "max_weight_g": 5000,
+                "daily_nutrients": {
+                    "calories_kcal": 220,
+                    "protein_g": 16,
+                    "fat_g": 3,
+                    "fiber_g": 22,
+                    "water_ml": 150
+                },
+                "food_recommendations": [
+                    {
+                        "food": "Rabbit Pellets",
+                        "price_per_kg": 300
+                    },
+                    {
+                        "food": "Timothy Hay",
+                        "price_per_kg": 200
+                    },
+                    {
+                        "food": "Carrot",
+                        "price_per_kg": 20
+                    },
+                    {
+                        "food": "Spinach",
+                        "price_per_kg": 25
+                    },
+                    {
+                        "food": "Apple",
+                        "price_per_kg": 40
+                    }
+                ]
+            },
+            {
+                "name": "Dutch Rabbit",
+                "min_age_months": 2,
+                "max_age_months": 96,
+                "min_weight_g": 2000,
+                "max_weight_g": 2500,
+                "daily_nutrients": {
+                    "calories_kcal": 180,
+                    "protein_g": 14,
+                    "fat_g": 2.5,
+                    "fiber_g": 20,
+                    "water_ml": 120
+                },
+                "food_recommendations": [
+                    {
+                        "food": "Rabbit Pellets",
+                        "price_per_kg": 300
+                    },
+                    {
+                        "food": "Orchard Grass Hay",
+                        "price_per_kg": 220
+                    },
+                    {
+                        "food": "Cucumber",
+                        "price_per_kg": 15
+                    },
+                    {
+                        "food": "Coriander Leaves",
+                        "price_per_kg": 30
+                    },
+                    {
+                        "food": "Papaya",
+                        "price_per_kg": 35
+                    }
+                ]
+            },
+            {
+                "name": "Holland Lop",
+                "min_age_months": 2,
+                "max_age_months": 84,
+                "min_weight_g": 1300,
+                "max_weight_g": 1800,
+                "daily_nutrients": {
+                    "calories_kcal": 160,
+                    "protein_g": 13,
+                    "fat_g": 2,
+                    "fiber_g": 18,
+                    "water_ml": 110
+                },
+                "food_recommendations": [
+                    {
+                        "food": "Rabbit Pellets",
+                        "price_per_kg": 320
+                    },
+                    {
+                        "food": "Timothy Hay",
+                        "price_per_kg": 200
+                    },
+                    {
+                        "food": "Broccoli Leaves",
+                        "price_per_kg": 30
+                    },
+                    {
+                        "food": "Carrot Tops",
+                        "price_per_kg": 18
+                    },
+                    {
+                        "food": "Pear",
+                        "price_per_kg": 45
+                    }
+                ]
+            },
+            {
+                "name": "Flemish Giant",
+                "min_age_months": 3,
+                "max_age_months": 144,
+                "min_weight_g": 6000,
+                "max_weight_g": 10000,
+                "daily_nutrients": {
+                    "calories_kcal": 350,
+                    "protein_g": 18,
+                    "fat_g": 4,
+                    "fiber_g": 25,
+                    "water_ml": 250
+                },
+                "food_recommendations": [
+                    {
+                        "food": "High Fiber Pellets",
+                        "price_per_kg": 350
+                    },
+                    {
+                        "food": "Timothy Hay",
+                        "price_per_kg": 200
+                    },
+                    {
+                        "food": "Bottle Gourd",
+                        "price_per_kg": 20
+                    },
+                    {
+                        "food": "Spinach",
+                        "price_per_kg": 25
+                    },
+                    {
+                        "food": "Banana (limited)",
+                        "price_per_kg": 50
+                    }
+                ]
+            }
+        ],
+        "diseases": [
+            "GI Stasis",
+            "Dental Disease",
+            "Snuffles",
+            "Obesity",
+            "Heat Stroke",
+            "Hairball Blockage",
+            "Ear Mites"
+        ]
+    },
+    "global_prices": [
+        {
+            "food": "Hamster Pellets",
+            "price_per_kg": 350
+        },
+        {
+            "food": "Sunflower Seeds",
+            "price_per_kg": 800
+        },
+        {
+            "food": "Pumpkin Seeds",
+            "price_per_kg": 700
+        },
+        {
+            "food": "Chia Seeds",
+            "price_per_kg": 1100
+        },
+        {
+            "food": "Oats",
+            "price_per_kg": 100
+        },
+        {
+            "food": "Millet Spray",
+            "price_per_kg": 200
+        },
+        {
+            "food": "Whole Wheat",
+            "price_per_kg": 180
+        },
+        {
+            "food": "Buckwheat",
+            "price_per_kg": 150
+        },
+        {
+            "food": "Carrot (fresh)",
+            "price_per_kg": 20
+        },
+        {
+            "food": "Cucumber (fresh)",
+            "price_per_kg": 15
+        },
+        {
+            "food": "Apple (fresh)",
+            "price_per_kg": 40
+        },
+        {
+            "food": "Bell Pepper (fresh)",
+            "price_per_kg": 30
+        },
+        {
+            "food": "Boiled Egg",
+            "price_per_kg": 500
+        },
+        {
+            "food": "Boiled Chicken",
+            "price_per_kg": 450
+        },
+        {
+            "food": "Boiled Turkey",
+            "price_per_kg": 480
+        },
+        {
+            "food": "Tofu (boiled)",
+            "price_per_kg": 250
+        },
+        {
+            "food": "Rabbit Pellets",
+            "price_per_kg": 300
+        },
+        {
+            "food": "High Fiber Pellets",
+            "price_per_kg": 350
+        },
+        {
+            "food": "Timothy Hay",
+            "price_per_kg": 200
+        },
+        {
+            "food": "Orchard Grass Hay",
+            "price_per_kg": 220
+        },
+        {
+            "food": "Carrot",
+            "price_per_kg": 20
+        },
+        {
+            "food": "Spinach",
+            "price_per_kg": 25
+        },
+        {
+            "food": "Coriander Leaves",
+            "price_per_kg": 30
+        },
+        {
+            "food": "Cucumber",
+            "price_per_kg": 15
+        },
+        {
+            "food": "Apple",
+            "price_per_kg": 40
+        },
+        {
+            "food": "Papaya",
+            "price_per_kg": 35
+        },
+        {
+            "food": "Pear",
+            "price_per_kg": 45
+        },
+        {
+            "food": "Bottle Gourd",
+            "price_per_kg": 20
+        }
+    ]
+}
