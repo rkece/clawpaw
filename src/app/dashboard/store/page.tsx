@@ -5,12 +5,12 @@ import { motion } from 'framer-motion';
 import { useState } from 'react';
 
 const PRODUCTS = [
-    { id: 'P1', name: 'Premium Puppy Kibble', brand: 'Royal Canin', price: '₹3,400', rating: 4.8, category: 'Food' },
-    { id: 'P2', name: 'Orthopedic Dog Bed', brand: 'PawComfort', price: '₹4,200', rating: 4.9, category: 'Comfort' },
-    { id: 'P3', name: 'Cat Scratching Post', brand: 'MeowLabs', price: '₹1,500', rating: 4.5, category: 'Toys' },
-    { id: 'P4', name: 'Multivitamin Syrup', brand: 'PetHealth', price: '₹650', rating: 4.7, category: 'Supplements' },
-    { id: 'P5', name: 'Reflective Leash', brand: 'SafeWalk', price: '₹890', rating: 4.6, category: 'Accessories' },
-    { id: 'P6', name: 'Automatic Water Fountain', brand: 'HydraPet', price: '₹2,100', rating: 4.8, category: 'Tech' },
+    { id: 'P1', name: 'Premium Puppy Kibble', brand: 'Royal Canin', price: '₹3,400', rating: 4.8, category: 'Food', image: 'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?auto=format&fit=crop&q=80&w=800' },
+    { id: 'P2', name: 'Orthopedic Dog Bed', brand: 'PawComfort', price: '₹4,200', rating: 4.9, category: 'Comfort', image: 'https://images.unsplash.com/photo-1541599540903-21b128461bce?auto=format&fit=crop&q=80&w=800' },
+    { id: 'P3', name: 'Cat Scratching Post', brand: 'MeowLabs', price: '₹1,500', rating: 4.5, category: 'Toys', image: 'https://images.unsplash.com/photo-1545249390-6bdfa286032f?auto=format&fit=crop&q=80&w=800' },
+    { id: 'P4', name: 'Multivitamin Syrup', brand: 'PetHealth', price: '₹650', rating: 4.7, category: 'Supplements', image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&q=80&w=800' },
+    { id: 'P5', name: 'Reflective Leash', brand: 'SafeWalk', price: '₹890', rating: 4.6, category: 'Accessories', image: 'https://images.unsplash.com/photo-1601758124510-52d02ddb7cbd?auto=format&fit=crop&q=80&w=800' },
+    { id: 'P6', name: 'Automatic Water Fountain', brand: 'HydraPet', price: '₹2,100', rating: 4.8, category: 'Tech', image: 'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?auto=format&fit=crop&q=80&w=800' },
 ];
 
 export default function MedicalStorePage() {
@@ -54,10 +54,9 @@ export default function MedicalStorePage() {
                         transition={{ delay: i * 0.05 }}
                         className={`glass-card group overflow-hidden ${view === 'list' ? 'flex items-center p-4 gap-6' : ''}`}
                     >
-                        <div className={view === 'grid' ? 'aspect-video bg-elevated relative overflow-hidden' : 'w-24 h-24 bg-elevated rounded-xl flex-shrink-0'}>
-                            <div className="absolute inset-0 flex items-center justify-center text-muted opacity-20">
-                                <ShoppingBag className="w-12 h-12" />
-                            </div>
+                        <div className={view === 'grid' ? 'aspect-video bg-elevated relative overflow-hidden' : 'w-24 h-24 bg-elevated rounded-xl flex-shrink-0 relative overflow-hidden'}>
+                            <img src={p.image} alt={p.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent opacity-60" />
                             {view === 'grid' && (
                                 <div className="absolute top-2 right-2">
                                     <span className="badge badge-info bg-opacity-80 backdrop-blur-md">{p.category}</span>

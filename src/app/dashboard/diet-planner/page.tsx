@@ -680,7 +680,6 @@ export default function DietPlannerPage() {
                                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
                                     {[
                                         { label: 'Energy Target', value: `${analysis?.mer} kcal`, icon: Target, color: '#6366F1' },
-                                        { label: 'Metabolic Base', value: `${analysis?.rer} kcal`, icon: Activity, color: '#0EA5E9' },
                                         { label: 'Synthesis Score', value: `${analysis?.synthesisScore}%`, icon: Sparkles, color: '#10B981' },
                                         { label: 'Phase Stage', value: form.ageYears > 8 ? 'Senior' : 'Adult', icon: HeartPulse, color: '#F59E0B' },
                                     ].map(stat => (

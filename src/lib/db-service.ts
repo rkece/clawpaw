@@ -496,89 +496,20 @@ export async function initializeAllCollections(clinicId: string, clinicName: str
         });
     }
 
-    // ── 2. Sample Patients ─────────────────────────────
+    // ── 2. Patients (Empty Init) ───────────────────────
     if (!existing.patients) {
-        const samplePets = [
-            {
-                name: 'Luna', species: 'dog', breed: 'Golden Retriever',
-                ageYears: 3, weightKg: 28, activityLevel: 'active',
-                conditions: [], region: 'India', status: 'active',
-                ownerName: 'Dr. Demo', createdAt: now, updatedAt: now,
-                isDemo: true
-            },
-            {
-                name: 'Whiskers', species: 'cat', breed: 'Persian Cat',
-                ageYears: 5, weightKg: 4.5, activityLevel: 'lazy',
-                conditions: ['Obesity'], region: 'India', status: 'active',
-                ownerName: 'Dr. Demo', createdAt: now, updatedAt: now,
-                isDemo: true
-            },
-            {
-                name: 'Thumper', species: 'rabbit', breed: 'Holland Lop',
-                ageYears: 2, weightKg: 1.8, activityLevel: 'active',
-                conditions: [], region: 'India', status: 'active',
-                ownerName: 'Dr. Demo', createdAt: now, updatedAt: now,
-                isDemo: true
-            },
-        ];
-        for (const pet of samplePets) {
-            const petRef = push(ref(db, `clinics/${clinicId}/patients`));
-            await set(petRef, { ...pet, id: petRef.key });
-        }
+        // No sample pets added anymore for cleaner registry
+        console.log('[DATABASE] Initialized empty patients registry');
     }
 
-    // ── 3. Diet Plans (empty init) ─────────────────────
+    // ── 3. Diet Plans (Empty Init) ─────────────────────
     if (!existing.dietPlans) {
-        await push(ref(db, `clinics/${clinicId}/dietPlans`), {
-            _init: true,
-            petName: 'Luna',
-            species: 'dog',
-            breed: 'Golden Retriever',
-            status: 'active',
-            version: 1,
-            createdAt: now,
-            updatedAt: now,
-            petId: 'demo',
-            weightKg: 28,
-            ageYears: 3,
-            activityLevel: 'active',
-            conditions: [],
-            region: 'India',
-            budgetPeriod: 'monthly',
-            analysis: {
-                rer: 805,
-                mer: 1127,
-                synthesisScore: 92,
-                macros: { protein: 282, fat: 169, carbs: 507, fiber: 113, minerals: 56 },
-                macroPercents: { protein: 25, fat: 15, carbs: 45, fiber: 10, minerals: 5 },
-                mealPlan: [{ day: 'Monday', meals: { breakfast: 'Premium chicken & rice', lunch: 'Grain-free kibble', dinner: 'Boiled chicken breast' }, calories: 1127 }],
-                budget: { daily: 2.48, weekly: 17.36, monthly: 75.39, currency: '₹', ingredients: [{ name: 'Protein Source', costWeekly: 7.81, costMonthly: 33.94 }] },
-            },
-        });
+        // Empty init
     }
 
-    // ── 4. Analytics Snapshots ──────────────────────────
-    if (!existing.analytics) {
-        await push(ref(db, `clinics/${clinicId}/analytics`), {
-            type: 'clinic_initialized',
-            timestamp: now,
-            metadata: { event: 'All collections seeded' },
-        });
-    }
-
-    // ── 5. Compliance ──────────────────────────────────
+    // ── 4. Compliance (Empty Init) ──────────────────────
     if (!existing.compliance) {
-        await push(ref(db, `clinics/${clinicId}/compliance`), {
-            petId: 'demo',
-            petName: 'Luna',
-            planId: 'demo',
-            weekNumber: 1,
-            score: 88,
-            mealsFollowed: 18,
-            mealsTotal: 21,
-            notes: 'Initial compliance baseline',
-            timestamp: now,
-        });
+        // Empty init
     }
 
     // ── 6. Audit Logs ──────────────────────────────────

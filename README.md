@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Claws & Paws – Veterinary Nutrition AI
 
-## Getting Started
+Claws & Paws is a high-tech, clinical-grade Veterinary Nutrition Management System designed for elite veterinary practices. It streamlines patient registration, autonomous diet synthesis, and clinical analytics.
 
-First, run the development server:
+## 🚀 Key Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Intelligence Hub**: Real-time dashboard showing clinic-wide analytics, species distribution, and synthesis averages.
+- **Patient Registry**: Secure datastore for biological pet profiles, history, and medical conditions.
+- **Diet Forge (Dietary Node)**: Autonomous nutritional protocol generation based on species, breed, and pathology.
+- **Clinical Analytics**: Deep-dive insights into patient retention, protocol versions, and regional compliance.
+- **Medical Store**: Professional-grade supply procurement system with curated nutritional products.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📊 Analytics Engine
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The application uses a **Multi-Tenant Architecture** where data is strictly isolated per clinic.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Data Isolation
+- **Per-Clinic Registry**: Every login initializes a unique clinical node. Patient data added in one clinic is never visible to another.
+- **Dynamic Calculation**: Analytics are calculated on-the-fly from live Firebase data:
+  - **Avg Synthesis**: Mean score of all generated diet protocols.
+  - **Species Load**: Real-time distribution of phylogenetic nodes (Dog, Cat, etc.).
+  - **Retention Tracking**: Analyzes patient activity and plan versioning to determine clinic performance.
 
-## Learn More
+### Intelligence Hub (Dashboard)
+The dashboard provides high-level KPIs:
+- **Synthesis Depth**: Measures the average quality score of nutrition plans.
+- **Active Protocols**: Real-time count of active nutritional plans in the current clinic.
+- **Activity Feed**: Live audit trail of clinical actions (registrations, updates).
 
-To learn more about Next.js, take a look at the following resources:
+## 🛠️ Technical Stack
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Frontend**: Next.js 14, React, Tailwind CSS, Framer Motion
+- **State Management**: Zustand
+- **Database**: Firebase Realtime Database
+- **Visuals**: Recharts (for clinical projections), Lucide React (icons)
+- **Deployment**: Vercel
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📂 Project Structure
 
-## Deploy on Vercel
+- `/src/app/dashboard`: Core application modules (Registry, Planner, Analytics).
+- `/src/lib`: Logic engines (Nutrition Calculation, DB Services).
+- `/src/data`: Biological constants and regional economic data.
+- `/src/components`: Reusable UI primitives and layout systems.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+*Created with focus on medical precision and premium user experience.*
