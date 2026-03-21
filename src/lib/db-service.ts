@@ -95,12 +95,17 @@ export async function addPet(clinicId: string, pet: Pet) {
 }
 
 export async function getPets(clinicId: string): Promise<Pet[]> {
-    if (!clinicId) return [];
-    console.log(`[DATABASE] Fetching patient registry for: ${clinicId}`);
-    const petsRef = ref(db, `clinics/${clinicId}/patients`);
-    const snapshot = await get(petsRef);
-    if (!snapshot.exists()) return [];
-    return Object.values(snapshot.val()) as Pet[];
+    if (!clinicId || clinicId === 'undefined' || clinicId === 'null') return [];
+    try {
+        console.log(`[DATABASE] Fetching patient registry for: ${clinicId}`);
+        const petsRef = ref(db, `clinics/${clinicId}/patients`);
+        const snapshot = await get(petsRef);
+        if (!snapshot.exists()) return [];
+        return Object.values(snapshot.val()) as Pet[];
+    } catch (err) {
+        console.error('[DATABASE_ERROR] Registry fetch failed:', err);
+        return [];
+    }
 }
 
 export async function getPetById(clinicId: string, petId: string): Promise<Pet | null> {
@@ -196,25 +201,68 @@ export async function saveDietPlan(clinicId: string, plan: Omit<StoredDietPlan, 
         rer: plan.analysis.rer,
         species: plan.species,
     });
+    if (!clinicId || clinicId === 'undefined' || clinicId === 'null') throw new Error("Clinic ID is required for saving diet plan");
+    try {
+        const plansRef = ref(db, `clinics/${clinicId}/dietPlans`);
+        const newPlanRef = push(plansRef);
+        const planWithMeta: StoredDietPlan = {
+            ...plan,
+            id: newPlanRef.key!,
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+        };
+        await set(newPlanRef, planWithMeta);
 
-    return planWithMeta;
+        // Link plan to pet
+        if (plan.petId) {
+            const petRef = ref(db, `clinics/${clinicId}/patients/${plan.petId}`);
+            await update(petRef, { planId: newPlanRef.key, updatedAt: Date.now() });
+        }
+
+        await logActivity(clinicId, 'Diet Plan Generated', `Protocol created for ${plan.petName} (${plan.breed})`);
+        await logAudit(clinicId, 'PLAN_CREATE', `Diet plan v${plan.version} for "${plan.petName}" | MER: ${plan.analysis.mer}kcal | Budget: ${plan.analysis.budget.currency}${plan.analysis.budget.monthly}/mo`);
+
+        // Record analytics snapshot
+        await recordAnalyticsSnapshot(clinicId, {
+            type: 'plan_created',
+            petName: plan.petName,
+            mer: plan.analysis.mer,
+            rer: plan.analysis.rer,
+            species: plan.species,
+        });
+
+        return planWithMeta;
+    } catch (err) {
+        console.error(`[DATABASE_ERROR] Failed to save diet plan for clinic ${clinicId}:`, err);
+        throw err;
+    }
 }
 
 export async function getDietPlans(clinicId: string): Promise<StoredDietPlan[]> {
-    const plansRef = ref(db, `clinics/${clinicId}/dietPlans`);
-    const snapshot = await get(plansRef);
-    if (!snapshot.exists()) return [];
-    return Object.values(snapshot.val()) as StoredDietPlan[];
+    if (!clinicId || clinicId === 'undefined' || clinicId === 'null') return [];
+    try {
+        const plansRef = ref(db, `clinics/${clinicId}/dietPlans`);
+        const snapshot = await get(plansRef);
+        if (!snapshot.exists()) return [];
+        return Object.values(snapshot.val()) as StoredDietPlan[];
+    } catch (err) {
+        console.error('[DATABASE_ERROR] Protocol fetch failed:', err);
+        return [];
+    }
 }
 
 export async function getDietPlansByPet(clinicId: string, petId: string): Promise<StoredDietPlan[]> {
-    const plans = await getDietPlans(clinicId);
-    return plans.filter(p => p.petId === petId).sort((a, b) => b.createdAt - a.createdAt);
+    if (!clinicId || clinicId === 'undefined' || clinicId === 'null' || !petId) return [];
+    try {
+        const plans = await getDietPlans(clinicId); // getDietPlans already has error handling
+        return plans.filter(p => p.petId === petId).sort((a, b) => b.createdAt - a.createdAt);
+    } catch (err) {
+        console.error(`[DATABASE_ERROR] Failed to get diet plans for pet ${petId} in clinic ${clinicId}:`, err);
+        return [];
+    }
 }
 
 export async function archiveDietPlan(clinicId: string, planId: string) {
-    const planRef = ref(db, `clinics/${clinicId}/dietPlans/${planId}`);
-    await update(planRef, { status: 'archived', updatedAt: Date.now() });
     await logAudit(clinicId, 'PLAN_ARCHIVE', `Diet plan ${planId} archived`);
 }
 
