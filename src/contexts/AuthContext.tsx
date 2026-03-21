@@ -40,40 +40,58 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { user, clinicUser, loading, setUser, setClinicUser, setLoading, logout: storeLogout } = useAuthStore();
 
     useEffect(() => {
+        let isMounted = true;
         const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+            if (!isMounted) return;
             setLoading(true);
-            if (firebaseUser) {
-                setUser(firebaseUser);
-                // Load clinic user profile from DB
-                const profileRef = ref(db, `users/${firebaseUser.uid}`);
-                const snap = await get(profileRef);
-                if (snap.exists()) {
-                    const cu = snap.val() as ClinicUser;
-                    setClinicUser(cu);
-                    // Initialize collections for existing users (idempotent)
-                    initializeAllCollections(cu.clinicId, cu.clinicName).catch(console.error);
+            try {
+                if (firebaseUser) {
+                    setUser(firebaseUser);
+                    // Load clinic user profile from DB
+                    const profileRef = ref(db, `users/${firebaseUser.uid}`);
+                    const snap = await get(profileRef);
+                    
+                    if (!isMounted) return;
+
+                    if (snap.exists()) {
+                        const cu = snap.val() as ClinicUser;
+                        setClinicUser(cu);
+                        // Initialize collections for existing users (idempotent)
+                        initializeAllCollections(cu.clinicId, cu.clinicName).catch(console.error);
+                    } else {
+                        // Auto-create minimal profile
+                        const cu: ClinicUser = {
+                            uid: firebaseUser.uid,
+                            email: firebaseUser.email ?? '',
+                            displayName: firebaseUser.displayName ?? 'Clinic User',
+                            role: 'vet',
+                            clinicId: firebaseUser.uid,
+                            clinicName: 'My Clinic',
+                        };
+                        await set(profileRef, cu);
+                        if (isMounted) {
+                            setClinicUser(cu);
+                            // Initialize all Firebase collections
+                            await initializeAllCollections(cu.clinicId, cu.clinicName);
+                        }
+                    }
                 } else {
-                    // Auto-create minimal profile
-                    const cu: ClinicUser = {
-                        uid: firebaseUser.uid,
-                        email: firebaseUser.email ?? '',
-                        displayName: firebaseUser.displayName ?? 'Clinic User',
-                        role: 'vet',
-                        clinicId: firebaseUser.uid,
-                        clinicName: 'My Clinic',
-                    };
-                    await set(profileRef, cu);
-                    setClinicUser(cu);
-                    // Initialize all Firebase collections
-                    await initializeAllCollections(cu.clinicId, cu.clinicName);
+                    setUser(null);
+                    setClinicUser(null);
                 }
-            } else {
-                setUser(null);
-                setClinicUser(null);
+            } catch (err: any) {
+                console.error('[AUTH_ERROR] System synchronization failed:', err);
+                if (err.message?.includes('PERMISSION_DENIED')) {
+                    toast.error('Clinical Node Access Denied. Contact Authority.');
+                }
+            } finally {
+                if (isMounted) setLoading(false);
             }
-            setLoading(false);
         });
-        return () => unsubscribe();
+        return () => {
+            isMounted = false;
+            unsubscribe();
+        };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
