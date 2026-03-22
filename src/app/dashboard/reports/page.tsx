@@ -7,12 +7,25 @@ import { useAuth } from '@/contexts/AuthContext';
 import { getDietPlans, getAuditLogs } from '@/lib/db-service';
 import type { StoredDietPlan, AuditLog } from '@/lib/db-service';
 
+interface ReportEntry {
+    id: string;
+    patient: string;
+    owner: string;
+    type: 'Nutrition Plan' | 'Audit Log';
+    date: string;
+    size: string;
+    rawDate: number;
+    status: string;
+    version?: number;
+}
+
 export default function ReportsPage() {
     const { clinicUser } = useAuth();
     const [search, setSearch] = useState('');
     const [loading, setLoading] = useState(true);
-    const [reports, setReports] = useState<any[]>([]);
+    const [reports, setReports] = useState<ReportEntry[]>([]);
     const [stats, setStats] = useState({ total: 0, plans: 0, audits: 0 });
+
 
     useEffect(() => {
         if (clinicUser?.clinicId) {
@@ -21,29 +34,34 @@ export default function ReportsPage() {
                 getAuditLogs(clinicUser.clinicId, 50),
             ]).then(([plans, audits]) => {
                 // Build report entries from real diet plans
-                const planReports = plans.map((p: StoredDietPlan, i: number) => ({
-                    id: `DP-${(p.id || '').slice(-4).toUpperCase() || (1000 + i)}`,
-                    patient: p.petName,
-                    owner: `${p.species.charAt(0).toUpperCase() + p.species.slice(1)} · ${p.breed}`,
-                    type: 'Nutrition Plan',
-                    date: new Date(p.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-                    size: `${(JSON.stringify(p.analysis).length / 1024).toFixed(1)} KB`,
-                    rawDate: p.createdAt,
-                    status: p.status,
-                    version: p.version,
-                }));
+                const planReports = plans.map((p: StoredDietPlan, i: number) => {
+                    const speciesLabel = p.species ? p.species.charAt(0).toUpperCase() + p.species.slice(1) : 'Patient';
+                    return {
+                        id: `DP-${(p.id || '').slice(-4).toUpperCase() || (1000 + i)}`,
+                        patient: p.petName || 'Unknown Patient',
+                        owner: `${speciesLabel} · ${p.breed || 'Unknown Breed'}`,
+                        type: 'Nutrition Plan' as const,
+                        date: new Date(p.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+                        size: `${(JSON.stringify(p.analysis).length / 1024).toFixed(1)} KB`,
+                        rawDate: p.createdAt,
+                        status: p.status,
+                        version: p.version,
+                    };
+                });
+
 
                 // Build report entries from audit logs
                 const auditReports = audits.slice(0, 20).map((a: AuditLog, i: number) => ({
                     id: `AL-${(a.id || '').slice(-4).toUpperCase() || (2000 + i)}`,
                     patient: a.category,
                     owner: a.details.substring(0, 40),
-                    type: 'Audit Log',
+                    type: 'Audit Log' as const,
                     date: new Date(a.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
                     size: '—',
                     rawDate: a.timestamp,
                     status: 'logged',
                 }));
+
 
                 const allReports = [...planReports, ...auditReports].sort((a, b) => b.rawDate - a.rawDate);
                 setReports(allReports);

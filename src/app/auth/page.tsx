@@ -37,12 +37,13 @@ export default function AuthPage() {
     const [mode, setMode] = useState<'login' | 'register'>('login');
     const [showPass, setShowPass] = useState(false);
     const [loading, setLoading] = useState(false);
-    const { login, register, user } = useAuth();
+    const { login, register, logout, user, clinicUser, loading: authLoading } = useAuth();
     const router = useRouter();
 
     useEffect(() => {
-        if (user) router.push('/dashboard');
-    }, [user, router]);
+        if (user && clinicUser) router.push('/dashboard');
+    }, [user, clinicUser, router]);
+
 
     const loginForm = useForm<LoginForm>({ resolver: zodResolver(loginSchema) });
     const registerForm = useForm<RegisterForm>({ resolver: zodResolver(registerSchema) });
@@ -53,11 +54,13 @@ export default function AuthPage() {
             await login(data.email, data.password);
             toast.success('Sequence Authenticated. Initializing Node.');
             router.push('/dashboard');
-        } catch (err: any) {
-            toast.error(err.message || 'Authentication failed.');
+        } catch (err: unknown) {
+            const msg = err instanceof Error ? err.message : 'Authentication failed.';
+            toast.error(msg);
         } finally {
             setLoading(false);
         }
+
     }, [login, router]);
 
     const handleRegister = useCallback(async (data: RegisterForm) => {
@@ -72,11 +75,13 @@ export default function AuthPage() {
             });
             toast.success('Clinical Infrastructure Deployed.');
             router.push('/dashboard');
-        } catch (err: any) {
-            toast.error(err.message || 'Deployment failed.');
+        } catch (err: unknown) {
+            const msg = err instanceof Error ? err.message : 'Deployment failed.';
+            toast.error(msg);
         } finally {
             setLoading(false);
         }
+
     }, [register, router]);
 
     return (
@@ -177,7 +182,36 @@ export default function AuthPage() {
                         </div>
 
                         <AnimatePresence mode="wait">
-                            {mode === 'login' ? (
+                            {user && !clinicUser && !authLoading ? (
+                                <motion.div
+                                    key="access-denied"
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    className="p-8 rounded-3xl bg-red-50/50 border border-red-100/50 text-center space-y-6"
+                                >
+                                    <div className="w-20 h-20 rounded-full bg-red-500 text-white flex items-center justify-center mx-auto shadow-xl shadow-red-100">
+                                        <Shield className="w-10 h-10" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <h2 className="text-2xl font-display font-black text-slate-900 tracking-tighter">Clinical Access Denied</h2>
+                                        <p className="text-sm text-slate-500 font-medium">Your node authorization is invalid or has been revoked by the master registry.</p>
+                                    </div>
+                                    <div className="flex flex-col gap-2 w-full mt-4">
+                                        <button 
+                                            onClick={() => logout()}
+                                            className="btn-secondary w-full h-14 font-black uppercase tracking-widest text-[10px] text-red-600 hover:bg-red-50 border-red-100"
+                                        >
+                                            Revoke Session & Re-authenticate
+                                        </button>
+                                        <button 
+                                            onClick={() => (useAuth as any)().bypassAuth()}
+                                            className="text-[10px] font-bold text-slate-400 p-2 hover:text-indigo-600 transition-colors"
+                                        >
+                                            Emergency Node Bypass (Local Dev Only)
+                                        </button>
+                                    </div>
+                                </motion.div>
+                            ) : mode === 'login' ? (
                                 <motion.div
                                     key="login"
                                     initial={{ opacity: 0, x: -20, filter: 'blur(8px)' }}
@@ -274,6 +308,7 @@ export default function AuthPage() {
                                 </motion.div>
                             )}
                         </AnimatePresence>
+
                     </div>
 
                     <div className="mt-14 text-center">

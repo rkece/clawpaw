@@ -11,17 +11,35 @@ import { useAuth } from '@/contexts/AuthContext';
 import toast from 'react-hot-toast';
 
 export default function SettingsPage() {
-    const { clinicUser, logout } = useAuth();
+    const { clinicUser, logout, updateProfile } = useAuth();
     const [loading, setLoading] = useState(false);
     const [activeTab, setActiveTab] = useState('profile');
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!clinicUser) return;
         setLoading(true);
-        await new Promise(r => setTimeout(r, 1000));
-        setLoading(false);
-        toast.success('Settings updated successfully');
+        try {
+            const formData = new FormData(e.target as HTMLFormElement);
+            const updates: any = {};
+            
+            if (activeTab === 'profile') {
+                updates.displayName = formData.get('displayName');
+                await updateProfile(updates);
+            } else if (activeTab === 'clinic') {
+                updates.clinicName = formData.get('clinicName');
+                updates.address = formData.get('address');
+                updates.phone = formData.get('phone');
+                await updateProfile(updates);
+            }
+        } catch (err) {
+            console.error('Update failed:', err);
+            toast.error('Sync failed. Terminal node disconnected.');
+        } finally {
+            setLoading(false);
+        }
     };
+
 
     const TABS = [
         { id: 'profile', label: 'User Profile', icon: User },
@@ -102,23 +120,24 @@ export default function SettingsPage() {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-bold text-muted uppercase tracking-widest pl-1">Full Identity Name</label>
-                                            <input defaultValue={clinicUser?.displayName} className="form-input" />
+                                            <input name="displayName" defaultValue={clinicUser?.displayName} className="form-input" />
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-bold text-muted uppercase tracking-widest pl-1">Clinical Designation</label>
-                                            <input placeholder="Senior Veterinary Surgeon" className="form-input" />
+                                            <input name="designation" placeholder="Senior Veterinary Surgeon" className="form-input" />
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-bold text-muted uppercase tracking-widest pl-1">VCN Registration No</label>
-                                            <input placeholder="VCN-2024-X99" className="form-input" />
+                                            <input name="vcnId" placeholder="VCN-2024-X99" className="form-input" />
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-bold text-muted uppercase tracking-widest pl-1">Language Node</label>
-                                            <select className="form-input">
+                                            <select name="language" className="form-input">
                                                 <option>English (Global)</option>
                                                 <option>Hindi (India)</option>
                                             </select>
                                         </div>
+
                                     </div>
                                     <div className="pt-6">
                                         <button type="submit" disabled={loading} className="btn-primary w-full md:w-auto">
@@ -146,7 +165,7 @@ export default function SettingsPage() {
                                     <div className="badge badge-success">Active Entity</div>
                                 </div>
 
-                                <div className="space-y-6">
+                                <form onSubmit={handleSave} className="space-y-6">
                                     <div className="p-6 rounded-2xl bg-glass border border-subtle border-l-4 border-l-primary flex items-start gap-4">
                                         <Building2 className="w-6 h-6 text-primary mt-1" />
                                         <div>
@@ -157,26 +176,34 @@ export default function SettingsPage() {
 
                                     <div className="space-y-4 pt-4">
                                         <div className="space-y-2">
+                                            <label className="text-[10px] font-bold text-muted uppercase tracking-widest">Global Clinic Name</label>
+                                            <input name="clinicName" defaultValue={clinicUser?.clinicName} className="form-input" />
+                                        </div>
+                                        <div className="space-y-2">
                                             <label className="text-[10px] font-bold text-muted uppercase tracking-widest">Clinic Address (Multiline)</label>
-                                            <textarea rows={3} placeholder="Sector 42, HSR Layout, Bangalore - 560102" className="form-input py-3" />
+                                            <textarea name="address" rows={3} placeholder="Sector 42, HSR Layout, Bangalore - 560102" className="form-input py-3" />
                                         </div>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div className="space-y-2">
                                                 <label className="text-[10px] font-bold text-muted uppercase tracking-widest">Support Email</label>
-                                                <input placeholder="contact@pawclinic.com" className="form-input" />
+                                                <input name="email" placeholder="contact@pawclinic.com" className="form-input" />
                                             </div>
                                             <div className="space-y-2">
                                                 <label className="text-[10px] font-bold text-muted uppercase tracking-widest">Emergency Hotline</label>
-                                                <input placeholder="+91 98765 43210" className="form-input" />
+                                                <input name="phone" placeholder="+91 98765 43210" className="form-input" />
                                             </div>
                                         </div>
                                     </div>
 
                                     <div className="pt-6 flex gap-3">
-                                        <button onClick={handleSave} className="btn-primary">Save Organization Data</button>
-                                        <button className="btn-secondary">Upload Clinic Logo</button>
+                                        <button type="submit" disabled={loading} className="btn-primary">
+                                            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                                            Save Organization Data
+                                        </button>
+                                        <button type="button" className="btn-secondary">Upload Clinic Logo</button>
                                     </div>
-                                </div>
+                                </form>
+
                             </motion.div>
                         )}
 

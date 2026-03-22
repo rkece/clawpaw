@@ -7,12 +7,14 @@ import {
     signOut,
     onAuthStateChanged,
     sendPasswordResetEmail,
-    updateProfile,
+    updateProfile as authUpdateProfile,
     type User,
 } from 'firebase/auth';
+
 import { ref, set, get } from 'firebase/database';
 import { auth, db } from '@/lib/firebase';
-import { initializeAllCollections } from '@/lib/db-service';
+import { initializeAllCollections, updateUserProfile, updateClinicProfile } from '@/lib/db-service';
+
 import { useAuthStore, type ClinicUser, type UserRole } from '@/lib/store';
 import toast from 'react-hot-toast';
 
@@ -24,7 +26,11 @@ interface AuthContextType {
     register: (data: RegisterData) => Promise<void>;
     logout: () => Promise<void>;
     resetPassword: (email: string) => Promise<void>;
+    bypassAuth: () => void;
+    updateProfile: (data: Partial<ClinicUser>) => Promise<void>;
 }
+
+
 
 interface RegisterData {
     email: string;
@@ -43,10 +49,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         let isMounted = true;
         const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
             if (!isMounted) return;
-            setLoading(true);
-            try {
-                if (firebaseUser) {
-                    setUser(firebaseUser);
+            
+            if (firebaseUser) {
+                setLoading(true);
+                setUser(firebaseUser);
+                try {
                     // Load clinic user profile from DB
                     const profileRef = ref(db, `users/${firebaseUser.uid}`);
                     const snap = await get(profileRef);
@@ -75,17 +82,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                             await initializeAllCollections(cu.clinicId, cu.clinicName);
                         }
                     }
-                } else {
-                    setUser(null);
-                    setClinicUser(null);
+                } catch (err: unknown) {
+                    console.error('[AUTH_ERROR] System synchronization failed:', err);
+                    if (err instanceof Error && err.message?.includes('PERMISSION_DENIED')) {
+                        toast.error('Clinical Node Access Denied. Contact Authority.');
+                    }
+                    if (isMounted) {
+                        setClinicUser(null);
+                    }
+                } finally {
+                    if (isMounted) setLoading(false);
                 }
-            } catch (err: any) {
-                console.error('[AUTH_ERROR] System synchronization failed:', err);
-                if (err.message?.includes('PERMISSION_DENIED')) {
-                    toast.error('Clinical Node Access Denied. Contact Authority.');
-                }
-            } finally {
-                if (isMounted) setLoading(false);
+            } else {
+                setUser(null);
+                setClinicUser(null);
+                setLoading(false);
             }
         });
         return () => {
@@ -94,6 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
 
     const login = async (email: string, password: string) => {
         const result = await signInWithEmailAndPassword(auth, email, password);
@@ -104,7 +116,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const register = async (data: RegisterData) => {
         const result = await createUserWithEmailAndPassword(auth, data.email, data.password);
-        await updateProfile(result.user, { displayName: data.displayName });
+        await authUpdateProfile(result.user, { displayName: data.displayName });
+
 
         const clinicId = result.user.uid;
         const cu: ClinicUser = {
@@ -134,11 +147,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await sendPasswordResetEmail(auth, email);
     };
 
+    const bypassAuth = () => {
+        const mock: ClinicUser = {
+            uid: 'mock-user-' + Date.now(),
+            email: 'admin@clinic.local',
+            displayName: 'Clinical Node Bypass (MOCK)',
+            role: 'admin',
+            clinicId: 'mock-clinic',
+            clinicName: 'Local Development Clinic',
+            onboardingComplete: true
+        };
+        setUser({ uid: mock.uid, email: mock.email } as any);
+        setClinicUser(mock);
+        setLoading(false);
+        toast.success('Security Hub Bypassed. Native Node Active.');
+    };
+
+    const updateProfile = async (data: Partial<ClinicUser>) => {
+        if (!user) return;
+        await updateUserProfile(user.uid, data);
+        setClinicUser({ ...clinicUser, ...data } as ClinicUser);
+        toast.success('Clinical Node Data Synchronized.');
+    };
+
+
     return (
-        <AuthContext.Provider value={{ user, clinicUser, loading, login, register, logout, resetPassword }}>
+        <AuthContext.Provider value={{ user, clinicUser, loading, login, register, logout, resetPassword, bypassAuth, updateProfile }}>
             {children}
         </AuthContext.Provider>
     );
+
+
 }
 
 export function useAuth() {

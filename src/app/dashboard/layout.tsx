@@ -2,17 +2,20 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { AuthProvider, useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
+
 import Sidebar from '@/components/layout/Sidebar';
 import Header from '@/components/layout/Header';
 
 function DashboardGuard({ children }: { children: React.ReactNode }) {
-    const { user, loading } = useAuth();
+    const { user, clinicUser, loading } = useAuth();
     const router = useRouter();
 
     useEffect(() => {
-        if (!loading && !user) router.replace('/auth');
-    }, [user, loading, router]);
+        if (!loading && (!user || (!clinicUser && user))) {
+            router.replace('/auth');
+        }
+    }, [user, clinicUser, loading, router]);
 
     if (loading) {
         return (
@@ -26,7 +29,8 @@ function DashboardGuard({ children }: { children: React.ReactNode }) {
         );
     }
 
-    if (!user) return null;
+    if (!user || !clinicUser) return null;
+
 
     return (
         <div className="flex h-screen overflow-hidden" style={{ fontFamily: 'var(--font-base)' }}>

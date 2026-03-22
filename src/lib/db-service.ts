@@ -39,7 +39,15 @@ export interface ClinicProfile {
     updatedAt: number;
 }
 
+export async function updateUserProfile(uid: string, data: any) {
+    const userRef = ref(db, `users/${uid}`);
+    await update(userRef, data);
+    return data;
+}
+
+
 export async function getClinicProfile(clinicId: string): Promise<ClinicProfile | null> {
+
     const profileRef = ref(db, `clinics/${clinicId}/profile`);
     const snapshot = await get(profileRef);
     if (!snapshot.exists()) return null;
@@ -174,34 +182,8 @@ export interface StoredDietPlan {
 }
 
 export async function saveDietPlan(clinicId: string, plan: Omit<StoredDietPlan, 'id' | 'createdAt' | 'updatedAt'>): Promise<StoredDietPlan> {
-    const plansRef = ref(db, `clinics/${clinicId}/dietPlans`);
-    const newPlanRef = push(plansRef);
-    const planWithMeta: StoredDietPlan = {
-        ...plan,
-        id: newPlanRef.key!,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-    };
-    await set(newPlanRef, planWithMeta);
-
-    // Link plan to pet
-    if (plan.petId) {
-        const petRef = ref(db, `clinics/${clinicId}/patients/${plan.petId}`);
-        await update(petRef, { planId: newPlanRef.key, updatedAt: Date.now() });
-    }
-
-    await logActivity(clinicId, 'Diet Plan Generated', `Protocol created for ${plan.petName} (${plan.breed})`);
-    await logAudit(clinicId, 'PLAN_CREATE', `Diet plan v${plan.version} for "${plan.petName}" | MER: ${plan.analysis.mer}kcal | Budget: ${plan.analysis.budget.currency}${plan.analysis.budget.monthly}/mo`);
-
-    // Record analytics snapshot
-    await recordAnalyticsSnapshot(clinicId, {
-        type: 'plan_created',
-        petName: plan.petName,
-        mer: plan.analysis.mer,
-        rer: plan.analysis.rer,
-        species: plan.species,
-    });
     if (!clinicId || clinicId === 'undefined' || clinicId === 'null') throw new Error("Clinic ID is required for saving diet plan");
+    
     try {
         const plansRef = ref(db, `clinics/${clinicId}/dietPlans`);
         const newPlanRef = push(plansRef);
@@ -238,6 +220,7 @@ export async function saveDietPlan(clinicId: string, plan: Omit<StoredDietPlan, 
     }
 }
 
+
 export async function getDietPlans(clinicId: string): Promise<StoredDietPlan[]> {
     if (!clinicId || clinicId === 'undefined' || clinicId === 'null') return [];
     try {
@@ -263,7 +246,12 @@ export async function getDietPlansByPet(clinicId: string, petId: string): Promis
 }
 
 export async function archiveDietPlan(clinicId: string, planId: string) {
-    await logAudit(clinicId, 'PLAN_ARCHIVE', `Diet plan ${planId} archived`);
+    if (!clinicId || clinicId === 'undefined') return;
+    try {
+        await logAudit(clinicId, 'PLAN_ARCHIVE', `Diet plan ${planId} archived`);
+    } catch (err) {
+        console.error(`[DATABASE_ERROR] Failed to archive plan ${planId}:`, err);
+    }
 }
 
 // ══════════════════════════════════════════════════════
@@ -283,20 +271,33 @@ export interface AnalyticsSnapshot {
 }
 
 export async function recordAnalyticsSnapshot(clinicId: string, data: Omit<AnalyticsSnapshot, 'id' | 'timestamp'>) {
-    const analyticsRef = ref(db, `clinics/${clinicId}/analytics`);
-    await push(analyticsRef, {
-        ...data,
-        timestamp: Date.now(),
-    });
+    if (!clinicId || clinicId === 'undefined') return;
+    try {
+        const analyticsRef = ref(db, `clinics/${clinicId}/analytics`);
+        await push(analyticsRef, {
+            ...data,
+            timestamp: Date.now(),
+        });
+    } catch (err) {
+        console.error(`[DATABASE_ERROR] Failed to record analytics for clinic ${clinicId}:`, err);
+    }
 }
 
 export async function getAnalyticsHistory(clinicId: string, limit = 50): Promise<AnalyticsSnapshot[]> {
-    const analyticsRef = ref(db, `clinics/${clinicId}/analytics`);
-    const snapshot = await get(analyticsRef);
-    if (!snapshot.exists()) return [];
-    const entries = Object.entries(snapshot.val()).map(([id, val]: [string, any]) => ({ id, ...val }));
-    return entries.sort((a, b) => b.timestamp - a.timestamp).slice(0, limit);
+    if (!clinicId || clinicId === 'undefined') return [];
+    try {
+        const analyticsRef = ref(db, `clinics/${clinicId}/analytics`);
+        const snapshot = await get(analyticsRef);
+        if (!snapshot.exists()) return [];
+        const entries = Object.entries(snapshot.val()).map(([id, val]: [string, any]) => ({ id, ...val }));
+        return entries.sort((a, b) => b.timestamp - a.timestamp).slice(0, limit);
+    } catch (err) {
+        console.error(`[DATABASE_ERROR] Failed to fetch analytics history for clinic ${clinicId}:`, err);
+        return [];
+    }
 }
+
+
 
 // ══════════════════════════════════════════════════════
 // 5. COMPLIANCE COLLECTION
@@ -316,28 +317,46 @@ export interface ComplianceRecord {
 }
 
 export async function recordCompliance(clinicId: string, record: Omit<ComplianceRecord, 'id' | 'timestamp'>) {
-    const complianceRef = ref(db, `clinics/${clinicId}/compliance`);
-    await push(complianceRef, {
-        ...record,
-        timestamp: Date.now(),
-    });
-    await logAudit(clinicId, 'COMPLIANCE_LOG', `Compliance recorded for ${record.petName}: ${record.score}%`);
+    if (!clinicId || clinicId === 'undefined') return;
+    try {
+        const complianceRef = ref(db, `clinics/${clinicId}/compliance`);
+        await push(complianceRef, {
+            ...record,
+            timestamp: Date.now(),
+        });
+        await logAudit(clinicId, 'COMPLIANCE_LOG', `Compliance recorded for ${record.petName}: ${record.score}%`);
+    } catch (err) {
+        console.error(`[DATABASE_ERROR] Failed to record compliance for clinic ${clinicId}:`, err);
+    }
 }
 
 export async function getComplianceByPet(clinicId: string, petId: string): Promise<ComplianceRecord[]> {
-    const complianceRef = ref(db, `clinics/${clinicId}/compliance`);
-    const snapshot = await get(complianceRef);
-    if (!snapshot.exists()) return [];
-    const all = Object.entries(snapshot.val()).map(([id, val]: [string, any]) => ({ id, ...val }));
-    return all.filter(r => r.petId === petId).sort((a, b) => b.timestamp - a.timestamp);
+    if (!clinicId || !petId) return [];
+    try {
+        const complianceRef = ref(db, `clinics/${clinicId}/compliance`);
+        const snapshot = await get(complianceRef);
+        if (!snapshot.exists()) return [];
+        const all = Object.entries(snapshot.val()).map(([id, val]: [string, any]) => ({ id, ...val }));
+        return all.filter(r => r.petId === petId).sort((a, b) => b.timestamp - a.timestamp);
+    } catch (err) {
+        console.error(`[DATABASE_ERROR] Failed to fetch compliance for pet ${petId}:`, err);
+        return [];
+    }
 }
 
 export async function getClinicCompliance(clinicId: string): Promise<ComplianceRecord[]> {
-    const complianceRef = ref(db, `clinics/${clinicId}/compliance`);
-    const snapshot = await get(complianceRef);
-    if (!snapshot.exists()) return [];
-    return Object.entries(snapshot.val()).map(([id, val]: [string, any]) => ({ id, ...val }));
+    if (!clinicId || clinicId === 'undefined') return [];
+    try {
+        const complianceRef = ref(db, `clinics/${clinicId}/compliance`);
+        const snapshot = await get(complianceRef);
+        if (!snapshot.exists()) return [];
+        return Object.entries(snapshot.val()).map(([id, val]: [string, any]) => ({ id, ...val }));
+    } catch (err) {
+        console.error(`[DATABASE_ERROR] Failed to fetch clinic compliance for ${clinicId}:`, err);
+        return [];
+    }
 }
+
 
 // ══════════════════════════════════════════════════════
 // 6. AUDIT LOGS COLLECTION (Immutable Trail)
@@ -353,44 +372,68 @@ export interface AuditLog {
 }
 
 export async function logAudit(clinicId: string, category: string, details: string) {
-    const auditRef = ref(db, `clinics/${clinicId}/auditLogs`);
-    await push(auditRef, {
-        action: category,
-        category,
-        details,
-        timestamp: Date.now(),
-    });
+    if (!clinicId || clinicId === 'undefined') return;
+    try {
+        const auditRef = ref(db, `clinics/${clinicId}/auditLogs`);
+        await push(auditRef, {
+            action: category,
+            category,
+            details,
+            timestamp: Date.now(),
+        });
+    } catch (err) {
+        console.error(`[DATABASE_ERROR] Failed to log audit for clinic ${clinicId}:`, err);
+    }
 }
 
 export async function getAuditLogs(clinicId: string, limit = 100): Promise<AuditLog[]> {
-    const auditRef = ref(db, `clinics/${clinicId}/auditLogs`);
-    const snapshot = await get(auditRef);
-    if (!snapshot.exists()) return [];
-    const logs = Object.entries(snapshot.val()).map(([id, val]: [string, any]) => ({ id, ...val }));
-    return logs.sort((a, b) => b.timestamp - a.timestamp).slice(0, limit);
+    if (!clinicId || clinicId === 'undefined') return [];
+    try {
+        const auditRef = ref(db, `clinics/${clinicId}/auditLogs`);
+        const snapshot = await get(auditRef);
+        if (!snapshot.exists()) return [];
+        const logs = Object.entries(snapshot.val()).map(([id, val]: [string, any]) => ({ id, ...val }));
+        return logs.sort((a, b) => b.timestamp - a.timestamp).slice(0, limit);
+    } catch (err) {
+        console.error(`[DATABASE_ERROR] Failed to fetch audit logs for clinic ${clinicId}:`, err);
+        return [];
+    }
 }
+
 
 // ══════════════════════════════════════════════════════
 // 7. ACTIVITY FEED (Recent Actions)
 // ══════════════════════════════════════════════════════
 
 export async function logActivity(clinicId: string, action: string, details: string) {
-    const logRef = ref(db, `clinics/${clinicId}/activity`);
-    await push(logRef, {
-        action,
-        details,
-        user: 'system',
-        timestamp: Date.now(),
-    });
+    if (!clinicId || clinicId === 'undefined') return;
+    try {
+        const logRef = ref(db, `clinics/${clinicId}/activity`);
+        await push(logRef, {
+            action,
+            details,
+            user: 'system',
+            timestamp: Date.now(),
+        });
+    } catch (err) {
+        console.error(`[DATABASE_ERROR] Failed to log activity for clinic ${clinicId}:`, err);
+    }
 }
 
 export async function getRecentActivity(clinicId: string, limit = 10) {
-    const logRef = ref(db, `clinics/${clinicId}/activity`);
-    const snapshot = await get(logRef);
-    if (!snapshot.exists()) return [];
-    const logs = Object.entries(snapshot.val()).map(([id, val]: [string, any]) => ({ id, ...val }));
-    return logs.sort((a, b) => b.timestamp - a.timestamp).slice(0, limit);
+    if (!clinicId || clinicId === 'undefined') return [];
+    try {
+        const logRef = ref(db, `clinics/${clinicId}/activity`);
+        const snapshot = await get(logRef);
+        if (!snapshot.exists()) return [];
+        const logs = Object.entries(snapshot.val()).map(([id, val]: [string, any]) => ({ id, ...val }));
+        return logs.sort((a, b) => b.timestamp - a.timestamp).slice(0, limit);
+    } catch (err) {
+        console.error(`[DATABASE_ERROR] Failed to fetch activity for clinic ${clinicId}:`, err);
+        return [];
+    }
 }
+
 
 // ══════════════════════════════════════════════════════
 // 8. BILLING / SUBSCRIPTION COLLECTION
@@ -502,8 +545,9 @@ export async function getClinicAnalytics(clinicId: string) {
 
     // Average synthesis score from active plans
     const avgSynthesis = plans.length > 0
-        ? Math.round(plans.reduce((s, p) => s + (p.analysis?.synthesisScore || 90), 0) / plans.length)
-        : 94;
+        ? Math.round(plans.reduce((s, p) => s + (p.analysis?.synthesisScore || 0), 0) / plans.length)
+        : 0;
+
 
     return {
         totalPatients: pets.length,
@@ -605,3 +649,4 @@ export async function initializeAllCollections(clinicId: string, clinicName: str
 
     console.log(`✅ Firebase collections initialized for clinic: ${clinicName} (${clinicId})`);
 }
+

@@ -1,16 +1,35 @@
 'use client';
 
-import { Shield, Users, Key, AlertCircle, Plus, Edit2, Trash2, Mail, Lock } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Shield, Users, Key, AlertCircle, Plus, Edit2, Trash2, Mail, Lock, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
-
-const STAFF = [
-    { id: 'S1', name: 'Dr. Rakesh Kumar', role: 'Admin', email: 'rakesh@clawspaws.ai', status: 'Active', permissions: 'Full' },
-    { id: 'S2', name: 'Dr. Ananya Singh', role: 'Veterinarian', email: 'ananya@vet.claws.ai', status: 'Active', permissions: 'Clinical' },
-    { id: 'S3', name: 'James Wilson', role: 'Staff', email: 'james@claws.ai', status: 'Active', permissions: 'Limited' },
-    { id: 'S4', name: 'Sarah Miller', role: 'Vet Tech', email: 'sarah@claws.ai', status: 'On Leave', permissions: 'Clinical' },
-];
+import { useAuth } from '@/contexts/AuthContext';
+import { getStaffMembers, addStaffMember } from '@/lib/db-service';
+import type { StaffMember } from '@/lib/db-service';
+import toast from 'react-hot-toast';
 
 export default function AccessControlPage() {
+    const { clinicUser } = useAuth();
+    const [staff, setStaff] = useState<StaffMember[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    const loadStaff = useCallback(async () => {
+        if (!clinicUser?.clinicId) return;
+        setLoading(true);
+        try {
+            const data = await getStaffMembers(clinicUser.clinicId);
+            setStaff(data);
+        } catch (err) {
+            toast.error('Failed to sync staff registry');
+        } finally {
+            setLoading(false);
+        }
+    }, [clinicUser?.clinicId]);
+
+    useEffect(() => {
+        loadStaff();
+    }, [loadStaff]);
+
     return (
         <div className="content-wrapper">
             <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
@@ -69,7 +88,11 @@ export default function AccessControlPage() {
                         </tr>
                     </thead>
                     <tbody>
-                        {STAFF.map((s, i) => (
+                        {loading ? (
+                            <tr><td colSpan={6} className="text-center py-20"><Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" /></td></tr>
+                        ) : staff.length === 0 ? (
+                            <tr><td colSpan={6} className="text-center py-20 text-muted">No staff found in this registry node.</td></tr>
+                        ) : staff.map((s, i) => (
                             <motion.tr
                                 key={s.id}
                                 initial={{ opacity: 0, y: 10 }}
@@ -83,23 +106,24 @@ export default function AccessControlPage() {
                                         </div>
                                         <div>
                                             <div className="font-bold text-sm text-white">{s.name}</div>
-                                            <div className="text-xs text-muted">ID: {s.id}</div>
+                                            <div className="text-xs text-muted">Node: {s.id?.slice(-6).toUpperCase()}</div>
                                         </div>
                                     </div>
                                 </td>
                                 <td><span className="badge badge-primary">{s.role}</span></td>
-                                <td><div className="text-xs font-bold text-muted">{s.permissions} Access</div></td>
-                                <td className="text-xs text-muted">2 hours ago</td>
-                                <td><span className={`badge ${s.status === 'Active' ? 'badge-success' : 'badge-warning'}`}>{s.status}</span></td>
+                                <td><div className="text-xs font-bold text-muted capitalize">{s.permissions} Access</div></td>
+                                <td className="text-xs text-muted">{s.lastLogin ? new Date(s.lastLogin).toLocaleString() : 'Never'}</td>
+                                <td><span className={`badge ${s.status === 'active' ? 'badge-success' : 'badge-warning'}`}>{s.status}</span></td>
                                 <td>
                                     <div className="flex gap-1">
                                         <button className="btn-ghost p-2 rounded-lg"><Mail className="w-4 h-4" /></button>
-                                        <button className="btn-ghost p-2 rounded-lg"><Edit2 className="w-4 h-4" /></button>
-                                        <button className="btn-ghost p-2 rounded-lg text-error"><Trash2 className="w-4 h-4" /></button>
+                                        <button className="btn-ghost p-2 rounded-lg" title="Edit Staff"><Edit2 className="w-4 h-4" /></button>
+                                        <button className="btn-ghost p-2 rounded-lg text-error" title="Revoke Access"><Trash2 className="w-4 h-4" /></button>
                                     </div>
                                 </td>
                             </motion.tr>
                         ))}
+
                     </tbody>
                 </table>
             </div>
