@@ -5,12 +5,12 @@ import { motion } from 'framer-motion';
 import { useState } from 'react';
 
 const PRODUCTS = [
-    { id: 'P1', name: "Hill's Science Diet - Metabolic Weight Management", brand: "Hill's Pet", price: '₹4,800', rating: 4.9, category: 'Clinical Food', image: 'https://images.unsplash.com/photo-1589924691106-073b19f56582?auto=format&fit=crop&q=80&w=800' },
-    { id: 'P2', name: 'Royal Canin Veterinary Diet - Gastrointestinal', brand: 'Royal Canin', price: '₹3,200', rating: 4.8, category: 'Clinical Food', image: 'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?auto=format&fit=crop&q=80&w=800' },
-    { id: 'P3', name: 'SmartPet - Digital Body Weight Scale (Small/Med)', brand: 'SmartPet', price: '₹6,500', rating: 4.7, category: 'Accessories', image: 'https://images.unsplash.com/photo-1541599540903-21b128461bce?auto=format&fit=crop&q=80&w=800' },
-    { id: 'P4', name: 'PetSafe - Automatic Microchip Feeder', brand: 'PetSafe', price: '₹12,400', rating: 4.9, category: 'Tech', image: 'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?auto=format&fit=crop&q=80&w=800' },
-    { id: 'P5', name: 'Kong - Classic Rubber Toy (Red)', brand: 'KONG', price: '₹950', rating: 4.9, category: 'Toys', image: 'https://images.unsplash.com/photo-1545249390-6bdfa286032f?auto=format&fit=crop&q=80&w=800' },
-    { id: 'P6', name: 'Purina Pro Plan - Hydrolyzed Vegetarian', brand: 'Purina', price: '₹5,100', rating: 4.6, category: 'Clinical Food', image: 'https://images.unsplash.com/photo-1585814514055-75830132f3ea?auto=format&fit=crop&q=80&w=800' },
+    { id: 'P1', name: "Hill's Science Diet - Metabolic Weight Management", brand: "Hill's Pet", price: '₹4,800', rating: 4.9, category: 'Clinical Food', image: '/store/hills_diet.png' },
+    { id: 'P2', name: 'Royal Canin Veterinary Diet - Gastrointestinal', brand: 'Royal Canin', price: '₹3,200', rating: 4.8, category: 'Clinical Food', image: '/store/royal_canin.png' },
+    { id: 'P3', name: 'SmartPet - Digital Body Weight Scale (Small/Med)', brand: 'SmartPet', price: '₹6,500', rating: 4.7, category: 'Accessories', image: '/store/pet_scale.png' },
+    { id: 'P4', name: 'PetSafe - Automatic Microchip Feeder', brand: 'PetSafe', price: '₹12,400', rating: 4.9, category: 'Tech', image: '/store/microchip_feeder.png' },
+    { id: 'P5', name: 'Kong - Classic Rubber Toy (Red)', brand: 'KONG', price: '₹950', rating: 4.9, category: 'Toys', image: '/store/kong_toy.png' },
+    { id: 'P6', name: 'Purina Pro Plan - Hydrolyzed Veterinary', brand: 'Purina', price: '₹5,100', rating: 4.6, category: 'Clinical Food', image: '/store/purina_proplan.png' },
 ];
 
 

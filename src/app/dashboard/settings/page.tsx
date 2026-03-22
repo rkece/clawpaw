@@ -166,36 +166,55 @@ export default function SettingsPage() {
                                 </div>
 
                                 <form onSubmit={handleSave} className="space-y-6">
-                                    <div className="p-6 rounded-2xl bg-glass border border-subtle border-l-4 border-l-primary flex items-start gap-4">
-                                        <Building2 className="w-6 h-6 text-primary mt-1" />
-                                        <div>
-                                            <div className="font-bold mb-1">Clinic Brand: {clinicUser?.clinicName}</div>
-                                            <p className="text-xs text-muted">All generated reports and diet plans will carry this branding header.</p>
+                                    {/* Live Saved Clinic Profile Card */}
+                                    <div className="p-6 rounded-2xl bg-glass border border-subtle space-y-4">
+                                        <div className="flex items-center gap-3 mb-2">
+                                            <Building2 className="w-5 h-5 text-primary" />
+                                            <span className="text-xs font-black uppercase tracking-widest text-muted">Synchronized Clinic Profile</span>
+                                            <span className="badge badge-success ml-auto">Live</span>
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <div className="text-[10px] font-bold text-muted uppercase tracking-widest mb-1">Clinic Name</div>
+                                                <div className="font-bold text-white">{clinicUser?.clinicName || '—'}</div>
+                                            </div>
+                                            <div>
+                                                <div className="text-[10px] font-bold text-muted uppercase tracking-widest mb-1">Clinic ID</div>
+                                                <div className="font-mono text-xs text-primary-light">{clinicUser?.clinicId || '—'}</div>
+                                            </div>
+                                            <div>
+                                                <div className="text-[10px] font-bold text-muted uppercase tracking-widest mb-1">Address</div>
+                                                <div className="text-sm text-muted">{(clinicUser as any)?.address || 'Not set'}</div>
+                                            </div>
+                                            <div>
+                                                <div className="text-[10px] font-bold text-muted uppercase tracking-widest mb-1">Emergency Hotline</div>
+                                                <div className="text-sm text-muted">{(clinicUser as any)?.phone || 'Not set'}</div>
+                                            </div>
                                         </div>
                                     </div>
 
-                                    <div className="space-y-4 pt-4">
+                                    <div className="space-y-4 pt-2">
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-bold text-muted uppercase tracking-widest">Global Clinic Name</label>
                                             <input name="clinicName" defaultValue={clinicUser?.clinicName} className="form-input" />
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-bold text-muted uppercase tracking-widest">Clinic Address (Multiline)</label>
-                                            <textarea name="address" rows={3} placeholder="Sector 42, HSR Layout, Bangalore - 560102" className="form-input py-3" />
+                                            <textarea name="address" rows={3} defaultValue={(clinicUser as any)?.address || ''} placeholder="Sector 42, HSR Layout, Bangalore - 560102" className="form-input py-3" />
                                         </div>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div className="space-y-2">
                                                 <label className="text-[10px] font-bold text-muted uppercase tracking-widest">Support Email</label>
-                                                <input name="email" placeholder="contact@pawclinic.com" className="form-input" />
+                                                <input name="email" defaultValue={(clinicUser as any)?.email || ''} placeholder="contact@pawclinic.com" className="form-input" />
                                             </div>
                                             <div className="space-y-2">
                                                 <label className="text-[10px] font-bold text-muted uppercase tracking-widest">Emergency Hotline</label>
-                                                <input name="phone" placeholder="+91 98765 43210" className="form-input" />
+                                                <input name="phone" defaultValue={(clinicUser as any)?.phone || ''} placeholder="+91 98765 43210" className="form-input" />
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div className="pt-6 flex gap-3">
+                                    <div className="pt-4 flex gap-3">
                                         <button type="submit" disabled={loading} className="btn-primary">
                                             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                                             Save Organization Data
@@ -203,6 +222,7 @@ export default function SettingsPage() {
                                         <button type="button" className="btn-secondary">Upload Clinic Logo</button>
                                     </div>
                                 </form>
+
 
                             </motion.div>
                         )}
