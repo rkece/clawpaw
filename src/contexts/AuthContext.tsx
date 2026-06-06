@@ -8,6 +8,8 @@ import {
     onAuthStateChanged,
     sendPasswordResetEmail,
     updateProfile as authUpdateProfile,
+    GoogleAuthProvider,
+    signInWithPopup,
     type User,
 } from 'firebase/auth';
 
@@ -23,6 +25,7 @@ interface AuthContextType {
     clinicUser: ClinicUser | null;
     loading: boolean;
     login: (email: string, password: string) => Promise<void>;
+    loginWithGoogle: () => Promise<void>;
     register: (data: RegisterData) => Promise<void>;
     logout: () => Promise<void>;
     resetPassword: (email: string) => Promise<void>;
@@ -114,6 +117,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (snap.exists()) setClinicUser(snap.val() as ClinicUser);
     };
 
+    const loginWithGoogle = async () => {
+        const provider = new GoogleAuthProvider();
+        await signInWithPopup(auth, provider);
+    };
+
     const register = async (data: RegisterData) => {
         const result = await createUserWithEmailAndPassword(auth, data.email, data.password);
         await authUpdateProfile(result.user, { displayName: data.displayName });
@@ -172,7 +180,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 
     return (
-        <AuthContext.Provider value={{ user, clinicUser, loading, login, register, logout, resetPassword, bypassAuth, updateProfile }}>
+        <AuthContext.Provider value={{ user, clinicUser, loading, login, loginWithGoogle, register, logout, resetPassword, bypassAuth, updateProfile }}>
             {children}
         </AuthContext.Provider>
     );

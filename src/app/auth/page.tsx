@@ -37,7 +37,7 @@ export default function AuthPage() {
     const [mode, setMode] = useState<'login' | 'register'>('login');
     const [showPass, setShowPass] = useState(false);
     const [loading, setLoading] = useState(false);
-    const { login, register, logout, user, clinicUser, loading: authLoading } = useAuth();
+    const { login, register, loginWithGoogle, logout, user, clinicUser, loading: authLoading } = useAuth();
     const router = useRouter();
 
     useEffect(() => {
@@ -62,6 +62,20 @@ export default function AuthPage() {
         }
 
     }, [login, router]);
+
+    const handleGoogleLogin = useCallback(async () => {
+        setLoading(true);
+        try {
+            await loginWithGoogle();
+            toast.success('Sequence Authenticated. Initializing Node.');
+            router.push('/dashboard');
+        } catch (err: unknown) {
+            const msg = err instanceof Error ? err.message : 'Google authentication failed.';
+            toast.error(msg);
+        } finally {
+            setLoading(false);
+        }
+    }, [loginWithGoogle, router]);
 
     const handleRegister = useCallback(async (data: RegisterForm) => {
         setLoading(true);
@@ -117,8 +131,8 @@ export default function AuthPage() {
                     </div>
 
                     <div className="space-y-6">
-                        <h1 className="text-[5rem] leading-[1] font-display font-black tracking-tight text-slate-900">
-                            The <span className="gradient-text italic pr-2">Clinical</span> Matrix.
+                        <h1 className="text-[4rem] lg:text-[4.5rem] leading-[1] font-display font-black tracking-tight text-slate-900">
+                            The <span className="gradient-text italic pr-5">Clinical</span> Matrix.
                         </h1>
                         <p className="text-2xl text-slate-500 font-medium max-w-[580px] leading-relaxed">
                             Next-generation nutritional orchestration for elite veterinary practices. Real-time patient synchronization and autonomous diet synthesis.
@@ -254,6 +268,46 @@ export default function AuthPage() {
                                         <button type="submit" className="btn-primary w-full h-[68px] flex items-center justify-center gap-3 text-sm tracking-widest uppercase font-black overflow-hidden group" disabled={loading}>
                                             {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : <>Synchronize <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-2" /></>}
                                         </button>
+
+                                        <div className="relative flex py-2 items-center">
+                                            <div className="flex-grow border-t border-slate-200/50 dark:border-slate-800/50"></div>
+                                            <span className="flex-shrink mx-4 text-[10px] font-black uppercase tracking-widest text-slate-400">OR</span>
+                                            <div className="flex-grow border-t border-slate-200/50 dark:border-slate-800/50"></div>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <label className="tag-label ml-2">OAuth Single Sign-On</label>
+                                            <button
+                                                type="button"
+                                                onClick={handleGoogleLogin}
+                                                disabled={loading}
+                                                className="w-full relative group cursor-pointer border-0 p-0 text-left bg-transparent block focus:outline-none disabled:opacity-50"
+                                            >
+                                                <div className="absolute left-6 top-1/2 -translate-y-1/2 flex items-center justify-center z-10 pointer-events-none">
+                                                    <svg className="w-5 h-5" viewBox="0 0 24 24">
+                                                        <path
+                                                            fill="#EA4335"
+                                                            d="M5.266 9.765A7.077 7.077 0 0 1 12 4.909c1.69 0 3.218.6 4.418 1.582l3.51-3.51C17.742 1.058 14.974 0 12 0 7.354 0 3.373 2.736 1.5 6.705l3.766 3.06Z"
+                                                        />
+                                                        <path
+                                                            fill="#4285F4"
+                                                            d="M23.49 12.275c0-.825-.075-1.62-.21-2.385H12v4.56h6.48c-.28 1.485-1.12 2.745-2.38 3.59l3.71 2.875c2.17-2 3.68-4.94 3.68-8.64Z"
+                                                        />
+                                                        <path
+                                                            fill="#FBBC05"
+                                                            d="M5.266 14.235 1.5 17.295A11.948 11.948 0 0 1 0 12c0-1.87.43-3.64 1.2-5.225l4.066 3.16a7.029 7.029 0 0 0 0 4.3Z"
+                                                        />
+                                                        <path
+                                                            fill="#34A853"
+                                                            d="M12 24c3.24 0 5.97-1.075 7.96-2.92l-3.71-2.875c-1.03.69-2.35 1.1-4.25 1.1-3.266 0-6.034-2.209-7.018-5.185L1.216 17.18A11.966 11.966 0 0 0 12 24Z"
+                                                        />
+                                                    </svg>
+                                                </div>
+                                                <div className="form-input pl-16 flex items-center text-slate-700 dark:text-slate-200 font-semibold group-hover:border-indigo-500/50 group-hover:bg-slate-100 dark:group-hover:bg-slate-800 transition-all duration-300 select-none cursor-pointer group-active:scale-[0.98]">
+                                                    Sign in with Google
+                                                </div>
+                                            </button>
+                                        </div>
                                     </form>
                                 </motion.div>
                             ) : (
@@ -304,6 +358,46 @@ export default function AuthPage() {
                                         <button type="submit" className="btn-primary w-full h-[68px] flex items-center justify-center gap-3 text-sm tracking-widest uppercase font-black group mt-4" disabled={loading}>
                                             {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : <>Deploy Node <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" /></>}
                                         </button>
+
+                                        <div className="relative flex py-2 items-center">
+                                            <div className="flex-grow border-t border-slate-200/50 dark:border-slate-800/50"></div>
+                                            <span className="flex-shrink mx-4 text-[10px] font-black uppercase tracking-widest text-slate-400">OR</span>
+                                            <div className="flex-grow border-t border-slate-200/50 dark:border-slate-800/50"></div>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <label className="tag-label ml-2">OAuth Single Sign-On</label>
+                                            <button
+                                                type="button"
+                                                onClick={handleGoogleLogin}
+                                                disabled={loading}
+                                                className="w-full relative group cursor-pointer border-0 p-0 text-left bg-transparent block focus:outline-none disabled:opacity-50"
+                                            >
+                                                <div className="absolute left-6 top-1/2 -translate-y-1/2 flex items-center justify-center z-10 pointer-events-none">
+                                                    <svg className="w-5 h-5" viewBox="0 0 24 24">
+                                                        <path
+                                                            fill="#EA4335"
+                                                            d="M5.266 9.765A7.077 7.077 0 0 1 12 4.909c1.69 0 3.218.6 4.418 1.582l3.51-3.51C17.742 1.058 14.974 0 12 0 7.354 0 3.373 2.736 1.5 6.705l3.766 3.06Z"
+                                                        />
+                                                        <path
+                                                            fill="#4285F4"
+                                                            d="M23.49 12.275c0-.825-.075-1.62-.21-2.385H12v4.56h6.48c-.28 1.485-1.12 2.745-2.38 3.59l3.71 2.875c2.17-2 3.68-4.94 3.68-8.64Z"
+                                                        />
+                                                        <path
+                                                            fill="#FBBC05"
+                                                            d="M5.266 14.235 1.5 17.295A11.948 11.948 0 0 1 0 12c0-1.87.43-3.64 1.2-5.225l4.066 3.16a7.029 7.029 0 0 0 0 4.3Z"
+                                                        />
+                                                        <path
+                                                            fill="#34A853"
+                                                            d="M12 24c3.24 0 5.97-1.075 7.96-2.92l-3.71-2.875c-1.03.69-2.35 1.1-4.25 1.1-3.266 0-6.034-2.209-7.018-5.185L1.216 17.18A11.966 11.966 0 0 0 12 24Z"
+                                                        />
+                                                    </svg>
+                                                </div>
+                                                <div className="form-input pl-16 flex items-center text-slate-700 dark:text-slate-200 font-semibold group-hover:border-indigo-500/50 group-hover:bg-slate-100 dark:group-hover:bg-slate-800 transition-all duration-300 select-none cursor-pointer group-active:scale-[0.98]">
+                                                    Sign in with Google
+                                                </div>
+                                            </button>
+                                        </div>
                                     </form>
                                 </motion.div>
                             )}
