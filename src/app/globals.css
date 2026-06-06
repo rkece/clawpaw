@@ -328,7 +328,12 @@
   }
 
   .form-input::placeholder {
-    color: var(--text-muted);
+    color: #000000;
+    opacity: 0.6;
+  }
+
+  .dark .form-input::placeholder {
+    color: #ffffff;
     opacity: 0.6;
   }
 
